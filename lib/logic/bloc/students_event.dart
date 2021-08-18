@@ -27,8 +27,3 @@ class DeleteStudents extends StudentsEvent {
   );
 }
 
-class SearchStudents extends StudentsEvent {
-  final String query;
-  final List<Students?>? notes;
-  SearchStudents(this.query, this.notes);
-}

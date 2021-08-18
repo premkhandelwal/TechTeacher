@@ -23,8 +23,9 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
   TextEditingController rate = new TextEditingController();
   TextEditingController calculatedAmount = new TextEditingController();
   TextEditingController actualAmount = new TextEditingController();
-  TextEditingController dateofBirth = new TextEditingController();
-  String? salePurchaseVal = "Sale/Purchase";
+  TextEditingController dateofBirthController = new TextEditingController();
+  DateTime? dateofBirth;
+  String? gender = "Select Gender";
 
   @override
   void initState() {
@@ -34,12 +35,19 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
           studentName.text = widget.notes!.studentName!;
         }
         if (widget.notes!.dateofBirth != null) {
-          dateofBirth.text = widget.notes!.dateofBirth!;
+          dateofBirthController.text = widget.notes!.dateofBirth!;
+          String year = dateofBirthController.text.toString().split("/")[2];
+          String month = dateofBirthController.text.toString().split("/")[1];
+          String date = dateofBirthController.text.toString().split("/")[0];
+          print(year);
+          dateofBirth = DateTime.parse(year + '-' + month + '-' + date);
         }
         if (widget.notes!.studentGender != null) {
-          salePurchaseVal = widget.notes!.studentGender!;
+          gender = widget.notes!.studentGender!;
         }
       }
+    } else {
+      dateofBirth = DateTime.now();
     }
     super.initState();
   }
@@ -49,6 +57,7 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         iconTheme: IconThemeData(
           color: Colors.black, //change your color here
         ),
@@ -99,6 +108,26 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    SizedBox(height: 10),
+                    TextFormField(
+                      validator: (val) {
+                        print(val);
+                        if (val == "") {
+                          return "This is a required field";
+                        }
+                        return null;
+                      },
+                      style: TextStyle(fontSize: 20, color: Colors.black),
+                      controller: studentName,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Name of Student",
+                          labelStyle:
+                              TextStyle(fontSize: 20, color: Colors.black54)),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     DateTimeField(
                       validator: (val) {
                         if (val == null) {
@@ -108,19 +137,21 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                       },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: "Select Date",
+                        labelText: "Date of Birth",
                         labelStyle: TextStyle(
                           color: Colors.black54,
                           fontSize: 20,
                         ),
                       ),
-                      controller: dateofBirth,
+                      controller: dateofBirthController,
                       style: TextStyle(color: Colors.black, fontSize: 20),
                       format: DateFormat(),
                       onChanged: (selectedDate) {
-                        dateofBirth.text =
+                        dateofBirth = selectedDate;
+                        dateofBirthController.text =
                             DateFormat("dd/MM/yyyy").format(selectedDate!);
                       },
+                      initialValue: dateofBirth,
                       onShowPicker: (context, currentValue) async {
                         final time = showDatePicker(
                           firstDate: DateTime(1500),
@@ -137,43 +168,26 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                     SizedBox(
                       height: 20,
                     ),
-                    TextFormField(
-                      validator: (val) {
-                        print(val);
-                        if (val == "") {
-                          return "This is a required field";
-                        }
-                        return null;
-                      },
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                      controller: studentName,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Company Name",
-                          labelStyle:
-                              TextStyle(fontSize: 20, color: Colors.black54)),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
                     DropdownButtonFormField(
                       validator: (val) {
+                        print(val);
                         if (val == null) {
                           return "This is a required field";
                         }
                         return null;
                       },
                       decoration: InputDecoration(border: OutlineInputBorder()),
-                      hint: salePurchaseVal == null
+                      hint: gender == null
                           ? Text('Dropdown')
                           : Text(
-                              salePurchaseVal!,
+                              gender!,
                               style: TextStyle(fontSize: 20),
                             ),
                       isExpanded: true,
                       iconSize: 30.0,
                       style: TextStyle(color: Colors.black, fontSize: 20),
-                      items: ['Sale', 'Purchase'].map(
+                      value: gender,
+                      items: ['Male', 'Female'].map(
                         (val) {
                           return DropdownMenuItem<String>(
                             value: val,
@@ -187,80 +201,10 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                       onChanged: (String? val) {
                         setState(
                           () {
-                            salePurchaseVal = val;
+                            gender = val;
                           },
                         );
                       },
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      validator: (val) {
-                        if (val == "") {
-                          return "This is a required field";
-                        }
-                        return null;
-                      },
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                      onChanged: (val) {
-                        calculatedAmount.text =
-                            (num.parse(val) * num.parse(rate.text)).toString();
-                      },
-                      controller: quantity,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Quantity",
-                          labelStyle:
-                              TextStyle(fontSize: 20, color: Colors.black54)),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      validator: (val) {
-                        if (val == "") {
-                          return "This is a required field";
-                        }
-                        return null;
-                      },
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                      controller: rate,
-                      onChanged: (val) {
-                        calculatedAmount.text =
-                            (num.parse(val) * num.parse(quantity.text))
-                                .toString();
-                      },
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Rate",
-                          labelStyle:
-                              TextStyle(fontSize: 20, color: Colors.black54)),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      readOnly: true,
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                      controller: calculatedAmount,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Calculated Amount",
-                          labelStyle:
-                              TextStyle(fontSize: 20, color: Colors.black54)),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                      controller: actualAmount,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Actual Amount",
-                          labelStyle:
-                              TextStyle(fontSize: 20, color: Colors.black54)),
                     ),
                     SizedBox(
                       height: 20,
@@ -305,14 +249,14 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                   Students(
                       id: widget.notes!.id,
                       studentName: studentName.text,
-                      dateofBirth: dateofBirth.text,
-                      studentGender: salePurchaseVal),
+                      dateofBirth: dateofBirthController.text,
+                      studentGender: gender),
                 )
               : AddNote(
                   Students(
                       studentName: studentName.text,
-                      dateofBirth: dateofBirth.text,
-                      studentGender: salePurchaseVal),
+                      dateofBirth: dateofBirthController.text,
+                      studentGender: gender),
                 ),
         );
   }

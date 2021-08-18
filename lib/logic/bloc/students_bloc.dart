@@ -26,9 +26,7 @@ class StudentsBloc extends Bloc<StudentsEvent, StudentsState> {
       yield* _mapFetchAllStudentsToState();
     } else if (event is DeleteStudents) {
       yield* _mapDeleteStudentsToState(event);
-    } else if (event is SearchStudents) {
-      yield* _mapSearchStudentsToState(event);
-    }
+    } 
   }
 
   Stream<StudentsState> _mapAddStudentsToState(AddNote event) async* {
@@ -54,31 +52,12 @@ class StudentsBloc extends Bloc<StudentsEvent, StudentsState> {
     yield StudentsLoadSuccess(notes);
   }
 
-  Stream<StudentsState> _mapSearchStudentsToState(SearchStudents event) async* {
-    yield StudentsSearch.loading();
-    try {
-      List<Students?>? notes =
-          await _getSearchResults(event.notes, event.query);
-      yield StudentsSearch.success(notes);
-    } catch (_) {
-      yield StudentsSearch.failure();
-    }
-  }
+
 
   @override
   void add(StudentsEvent event) {
     super.add(event);
   }
 
-  Future<List<Students?>?>? _getSearchResults(
-      List<Students?>? notes, String query) async {
-    var searchedStudents = query != ""
-        ? notes?.where((element) {
-            return element!.studentName!
-                .toLowerCase()
-                .startsWith(query.toLowerCase());
-          }).toList()
-        : notes;
-    return searchedStudents;
-  }
+
 }

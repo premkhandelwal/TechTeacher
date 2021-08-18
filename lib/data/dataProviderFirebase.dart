@@ -31,9 +31,7 @@ class DataProviderFirebase {
     print("Hello");
     List<Students?> listStudents = [];
 
-    await notesCollection
-        .get(GetOptions(source: Source.server))
-        .then((querySnapshot) {
+    await notesCollection.get().then((querySnapshot) {
       querySnapshot.docs.forEach((result) {
         listStudents.add(
           Students(
@@ -45,6 +43,7 @@ class DataProviderFirebase {
         );
       });
     });
+    print(listStudents);
     return listStudents;
   }
 
