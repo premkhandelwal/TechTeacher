@@ -1,3 +1,4 @@
+import 'package:tech_teacher/data/currentUser.dart';
 import 'package:tech_teacher/data/dataProviderFirebase.dart';
 import 'package:tech_teacher/data/students.dart';
 
@@ -6,21 +7,19 @@ class StudentsRepository {
 
   StudentsRepository({required this.dataProviderFirebase});
 
-  Future<bool> addNewStudents(Students notes) async {
-    return dataProviderFirebase.addNewStudents(notes);
+  Future<bool> addNewStudents(Students notes, CurrentUser user) async {
+    return dataProviderFirebase.addNewStudents(notes,user);
   }
 
-  Future<bool> updateExistingStudents(Students notes) async {
-    return dataProviderFirebase.updateExistingStudents(notes);
+  Future<bool> updateExistingStudents(Students notes, CurrentUser user) async {
+    return dataProviderFirebase.updateExistingStudents(notes,user);
   }
 
-  Future<void> deleteStudents(List<String?> notes) async {
-    dataProviderFirebase.deleteStudents(notes);
-  }
 
-  Future<List<Students?>?>? fetchAllStudents() async {
+
+  Future<List<Students?>?>? fetchAllStudents(CurrentUser user) async {
     List<Students?>? x = <Students>[];
-    x = await dataProviderFirebase.fetchAllStudents();
+    x = await dataProviderFirebase.fetchAllStudents(user);
     return x;
   }
 }

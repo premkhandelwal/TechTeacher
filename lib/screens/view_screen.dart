@@ -3,13 +3,16 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tech_teacher/data/currentUser.dart';
 import 'package:tech_teacher/data/students.dart';
 import 'package:tech_teacher/logic/bloc/cubit/internet_cubit.dart';
+import 'package:tech_teacher/logic/bloc/firebaseauth_bloc.dart';
 import 'package:tech_teacher/logic/bloc/students_bloc.dart';
 import 'package:tech_teacher/screens/addUpdate_screen.dart';
 
 class ViewScreen extends StatefulWidget {
-  const ViewScreen({Key? key}) : super(key: key);
+  final CurrentUser user;
+  const ViewScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   _ViewScreenState createState() => _ViewScreenState();
@@ -21,7 +24,7 @@ class _ViewScreenState extends State<ViewScreen> {
 
   @override
   void initState() {
-    context.read<StudentsBloc>().add(FetchAllStudents());
+    context.read<StudentsBloc>().add(FetchAllStudents(widget.user));
 
     super.initState();
   }
@@ -31,6 +34,7 @@ class _ViewScreenState extends State<ViewScreen> {
     try {
       _auth.signOut();
       _auth.authStateChanges();
+      context.read<FirebaseauthBloc>().add(SignOutRequested());
     } catch (e) {}
   }
 
@@ -75,50 +79,42 @@ class _ViewScreenState extends State<ViewScreen> {
                   Duration(seconds: 2),
                 );
                 context.read<InternetCubit>();
-                context.read<StudentsBloc>().add(FetchAllStudents());
+                context.read<StudentsBloc>().add(FetchAllStudents(widget.user));
               },
               child: BlocBuilder<StudentsBloc, StudentsState>(
                 builder: (context, state) {
-                  final internetState = context.watch<InternetCubit>().state;
-
-                  if (internetState is InternetConnected) {
-                    if (state is StudentsInitial) {
-                      context.read<StudentsBloc>().add(FetchAllStudents());
-                      return Center(child: CircularProgressIndicator());
-                    } else if (state is StudentsLoadSuccess) {
-                      notes = state.notes;
-                      return state.notes!.length != 0
-                          ? buildGridView(notes)
-                          : Center(
-                              child: Text(
-                                "No Items Present",
-                                style: TextStyle(fontSize: 15),
-                              ),
-                            );
-                    } else if (state is StudentsSearch) {
-                      notes = state.notes;
-                      return state.notes!.length != 0
-                          ? buildGridView(notes)
-                          : Center(
-                              child: Text(
-                                "No Items Present",
-                                style: TextStyle(fontSize: 15),
-                              ),
-                            );
-                    } else {
-                      return Center(
-                        child: Text(
-                          "No Items Present",
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      );
-                    }
+                  if (state is StudentsInitial) {
+                    context
+                        .read<StudentsBloc>()
+                        .add(FetchAllStudents(widget.user));
+                    return Center(child: CircularProgressIndicator());
+                  } else if (state is StudentsLoadSuccess) {
+                    notes = state.notes;
+                    return state.notes!.length != 0
+                        ? buildGridView(notes, widget.user)
+                        : Center(
+                            child: Text(
+                              "No Items Present",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          );
+                  } else if (state is StudentsSearch) {
+                    notes = state.notes;
+                    return state.notes!.length != 0
+                        ? buildGridView(notes, widget.user)
+                        : Center(
+                            child: Text(
+                              "No Items Present",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          );
                   } else {
                     return Center(
-                        child: Text(
-                      "No Internet",
-                      style: TextStyle(fontSize: 30),
-                    ));
+                      child: Text(
+                        "No Items Present",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                    );
                   }
                 },
               ),
@@ -129,7 +125,7 @@ class _ViewScreenState extends State<ViewScreen> {
     );
   }
 
-  Widget buildGridView(List<Students?>? notes) {
+  Widget buildGridView(List<Students?>? notes, CurrentUser user) {
     return GridView.builder(
       shrinkWrap: true,
       padding: EdgeInsets.all(10),
@@ -148,7 +144,8 @@ class _ViewScreenState extends State<ViewScreen> {
               MaterialPageRoute(
                 builder: (context) => AddUpdateScreen(
                   isUpdate: true,
-                  notes: notes?[index],
+                  students: notes?[index],
+                  user: user,
                 ),
               ),
             );

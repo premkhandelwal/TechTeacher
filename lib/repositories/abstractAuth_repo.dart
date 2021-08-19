@@ -1,7 +1,9 @@
-import 'package:tech_teacher/data/students.dart';
+import 'package:tech_teacher/data/currentUser.dart';
 
 abstract class AbstractAuthRepo {
-  Future<void> signUp(String emailid, String password);
-  Future<void> signIn(String emailid, String password);
+  CurrentUser? isSignedIn();
+  Future<CurrentUser> signUp(String emailid, String password);
+  Future<CurrentUser> signIn(String emailid, String password);
   Future<void> signOut();
+  Future<bool> verifyEmail(CurrentUser user);
 }

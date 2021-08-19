@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tech_teacher/data/currentUser.dart';
 import 'package:tech_teacher/logic/bloc/firebaseauth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,11 +15,7 @@ class _LoginScreenState extends State<LoginScreen>
   late TabController tabController;
   TextEditingController emailid = new TextEditingController();
   TextEditingController password = new TextEditingController();
-  FirebaseAuth? _firebaseAuth;
-  final _auth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn();
-  String _errorMessage = "";
-  bool _loggingIn = false;
+ 
 
   @override
   void initState() {
@@ -217,6 +212,13 @@ class _LoginScreenState extends State<LoginScreen>
                                     child: ElevatedButton(
                                       onPressed: (){
                                           context.read<FirebaseauthBloc>().add(SignUpRequested(emailId: emailid.text,password: password.text));
+                                         /* final signUpState = context.watch<FirebaseauthBloc>().state;
+                                          if(signUpState is UserSignedUp){
+
+                                          context.read<FirebaseauthBloc>().add(EmailVerificationRequested(user:signUpState.currentUser));
+                                          } */
+                                          
+                                        
                                         },
                                         child: Text(
                                           "Sign Up",

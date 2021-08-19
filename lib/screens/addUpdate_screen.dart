@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tech_teacher/data/currentUser.dart';
 import 'package:tech_teacher/data/students.dart';
 import 'package:tech_teacher/logic/bloc/students_bloc.dart';
 import 'package:tech_teacher/screens/home_screen.dart';
 
 class AddUpdateScreen extends StatefulWidget {
   final bool isUpdate;
-  final Students? notes;
-  const AddUpdateScreen({Key? key, this.isUpdate = false, this.notes})
+  final Students? students;
+  final CurrentUser user;
+  const AddUpdateScreen(
+      {Key? key, this.isUpdate = false, this.students, required this.user})
       : super(key: key);
 
   @override
@@ -19,35 +22,34 @@ class AddUpdateScreen extends StatefulWidget {
 
 class _AddUpdateScreenState extends State<AddUpdateScreen> {
   TextEditingController studentName = new TextEditingController();
-  TextEditingController quantity = new TextEditingController();
-  TextEditingController rate = new TextEditingController();
-  TextEditingController calculatedAmount = new TextEditingController();
-  TextEditingController actualAmount = new TextEditingController();
   TextEditingController dateofBirthController = new TextEditingController();
   DateTime? dateofBirth;
-  String? gender = "Select Gender";
-
+  String? gender;
+  List<String> genders = ["Select Gender", "Male", "Female"];
   @override
   void initState() {
+    genders = ["Male", "Female"];
     if (widget.isUpdate) {
-      if (widget.notes != null) {
-        if (widget.notes!.studentName != null) {
-          studentName.text = widget.notes!.studentName!;
+      if (widget.students != null) {
+        if (widget.students!.studentName != null) {
+          studentName.text = widget.students!.studentName!;
         }
-        if (widget.notes!.dateofBirth != null) {
-          dateofBirthController.text = widget.notes!.dateofBirth!;
+        if (widget.students!.dateofBirth != null) {
+          dateofBirthController.text = widget.students!.dateofBirth!;
           String year = dateofBirthController.text.toString().split("/")[2];
           String month = dateofBirthController.text.toString().split("/")[1];
           String date = dateofBirthController.text.toString().split("/")[0];
-          print(year);
+          
           dateofBirth = DateTime.parse(year + '-' + month + '-' + date);
         }
-        if (widget.notes!.studentGender != null) {
-          gender = widget.notes!.studentGender!;
+        if (widget.students!.studentGender != null) {
+          gender = widget.students!.studentGender!;
         }
       }
     } else {
       dateofBirth = DateTime.now();
+      // gender = "Select Gender";
+
     }
     super.initState();
   }
@@ -90,7 +92,9 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomeScreen(),
+                                builder: (context) => HomeScreen(
+                                  user: widget.user,
+                                ),
                               ),
                               (route) => false,
                             );
@@ -111,7 +115,7 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                     SizedBox(height: 10),
                     TextFormField(
                       validator: (val) {
-                        print(val);
+                        
                         if (val == "") {
                           return "This is a required field";
                         }
@@ -170,7 +174,7 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                     ),
                     DropdownButtonFormField(
                       validator: (val) {
-                        print(val);
+                        
                         if (val == null) {
                           return "This is a required field";
                         }
@@ -187,7 +191,7 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
                       iconSize: 30.0,
                       style: TextStyle(color: Colors.black, fontSize: 20),
                       value: gender,
-                      items: ['Male', 'Female'].map(
+                      items: genders.map(
                         (val) {
                           return DropdownMenuItem<String>(
                             value: val,
@@ -247,17 +251,17 @@ class _AddUpdateScreenState extends State<AddUpdateScreen> {
           widget.isUpdate
               ? UpdateNote(
                   Students(
-                      id: widget.notes!.id,
+                      id: widget.students!.id,
                       studentName: studentName.text,
                       dateofBirth: dateofBirthController.text,
                       studentGender: gender),
-                )
+                  widget.user)
               : AddNote(
                   Students(
                       studentName: studentName.text,
                       dateofBirth: dateofBirthController.text,
                       studentGender: gender),
-                ),
+                  widget.user),
         );
   }
 }
