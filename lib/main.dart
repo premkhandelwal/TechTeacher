@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
               create: (context) => InternetCubit(connectivity: connectivity)),
         ],
         child: MaterialApp(
-          title: 'Flutter Demo',
+          title: 'TechTeacher',
           theme: ThemeData(
             primarySwatch: Colors.blue,
             accentColor: Colors.black,
